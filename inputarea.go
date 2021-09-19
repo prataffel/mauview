@@ -991,6 +991,10 @@ func (field *InputArea) OnKeyEvent(event KeyEvent) bool {
 	case tcell.KeyDelete:
 		field.RemoveNextCharacter()
 		doSnapshot = true
+	case tcell.KeyCtrlW:
+		field.RemovePreviousWord()
+		doSnapshot = true
+		forceNewSnapshot = true
 	case tcell.KeyBackspace:
 		field.RemovePreviousWord()
 		doSnapshot = true
