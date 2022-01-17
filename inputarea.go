@@ -996,12 +996,20 @@ func (field *InputArea) OnKeyEvent(event KeyEvent) bool {
 		doSnapshot = true
 		forceNewSnapshot = true
 	case tcell.KeyBackspace:
-		field.RemovePreviousWord()
+		if Backspace1RemovesWord {
+			field.RemovePreviousWord()
+		} else {
+			field.RemovePreviousCharacter()
+		}
 		doSnapshot = true
 		forceNewSnapshot = true
 	case tcell.KeyBackspace2:
 		forceNewSnapshot = field.selectionEndW > 0
-		field.RemovePreviousCharacter()
+		if Backspace2RemovesWord {
+			field.RemovePreviousWord()
+		} else {
+			field.RemovePreviousCharacter()
+		}
 		doSnapshot = true
 	case tcell.KeyTab:
 		if field.tabComplete != nil {
