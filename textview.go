@@ -1,4 +1,5 @@
-// From
+// From https://github.com/rivo/tview/blob/master/textview.go
+
 package mauview
 
 import (
@@ -11,7 +12,7 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/mattn/go-runewidth"
 
-	"maunium.net/go/tcell"
+	"go.mau.fi/tcell"
 )
 
 // TabSize is the number of spaces with which a tab character will be replaced.
@@ -553,7 +554,7 @@ func (t *TextView) reindexBuffer(width int) {
 		)
 		strippedStr := str
 		if t.dynamicColors {
-			colorTagIndices, colorTags, escapeIndices, strippedStr, _ = decomposeString(str)
+			colorTagIndices, colorTags, _, _, escapeIndices, strippedStr, _ = decomposeString(str, true, false)
 		}
 
 		// Find all regions in this line. Then remove them.
@@ -668,7 +669,7 @@ func (t *TextView) reindexBuffer(width int) {
 						line := len(t.index)
 						if t.fromHighlight < 0 {
 							t.fromHighlight, t.toHighlight = line, line
-							t.posHighlight = StringWidth(splitLine[:strippedTagStart])
+							t.posHighlight = runewidth.StringWidth(splitLine[:strippedTagStart])
 						} else if line > t.toHighlight {
 							t.toHighlight = line
 						}
@@ -686,7 +687,7 @@ func (t *TextView) reindexBuffer(width int) {
 
 			// Append this line.
 			line.NextPos = originalPos
-			line.Width = StringWidth(splitLine)
+			line.Width = runewidth.StringWidth(splitLine)
 			t.index = append(t.index, line)
 		}
 
@@ -698,7 +699,7 @@ func (t *TextView) reindexBuffer(width int) {
 				if spaces != nil && spaces[len(spaces)-1][1] == len(str) {
 					oldNextPos := line.NextPos
 					line.NextPos -= spaces[len(spaces)-1][1] - spaces[len(spaces)-1][0]
-					line.Width -= StringWidth(t.buffer[line.Line][line.NextPos:oldNextPos])
+					line.Width -= runewidth.StringWidth(t.buffer[line.Line][line.NextPos:oldNextPos])
 				}
 			}
 		}
@@ -826,7 +827,7 @@ func (t *TextView) Draw(screen Screen) {
 		)
 		strippedText := text
 		if t.dynamicColors {
-			colorTagIndices, colorTags, escapeIndices, strippedText, _ = decomposeString(text)
+			colorTagIndices, colorTags, _, _, escapeIndices, strippedText, _ = decomposeString(text, true, false)
 		}
 
 		// Get regions.
@@ -840,7 +841,7 @@ func (t *TextView) Draw(screen Screen) {
 			strippedText = regionPattern.ReplaceAllString(strippedText, "")
 			if !t.dynamicColors {
 				escapeIndices = escapePattern.FindAllStringIndex(text, -1)
-				strippedText = string(escapePattern.ReplaceAllString(strippedText, "[$1$2]"))
+				strippedText = escapePattern.ReplaceAllString(strippedText, "[$1$2]")
 			}
 		}
 
@@ -887,7 +888,7 @@ func (t *TextView) Draw(screen Screen) {
 			// Mix the existing style with the new style.
 			_, _, existingStyle, _ := screen.GetContent(posX, line-t.lineOffset)
 			_, background, _ := existingStyle.Decompose()
-			style := overlayStyle(background, defaultStyle, foregroundColor, backgroundColor, attributes)
+			style := overlayStyle(defaultStyle.Background(background), foregroundColor, backgroundColor, attributes)
 
 			// Do we highlight this character?
 			var highlighted bool

@@ -8,8 +8,9 @@
 package main
 
 import (
-	"maunium.net/go/mauview"
-	"maunium.net/go/tcell"
+	"go.mau.fi/tcell"
+
+	"go.mau.fi/mauview"
 )
 
 type Text struct {
@@ -28,7 +29,7 @@ func main() {
 	grid := mauview.NewGrid()
 	textComp := &Text{mauview.SimpleEventHandler{}, "Hello, World!"}
 	textComp.OnKey = func(event mauview.KeyEvent) bool {
-		if event.Key() == tcell.KeyCtrlC {
+		if event.Key() == tcell.KeyCtrlC || event.Rune() == 'q' {
 			app.Stop()
 		}
 		return false
@@ -52,7 +53,7 @@ func main() {
 	grid.AddComponent(mauview.NewBox(mauview.Center(mauview.NewBox(nil), 10, 5).SetAlwaysFocusChild(true)), 2, 2, 1, 1)
 	grid.AddComponent(mauview.NewBox(nil), 0, 4, 2, 1)
 	grid.AddComponent(mauview.NewBox(mauview.NewInputField()), 0, 3, 3, 1)
-	app.Root = mauview.NewBox(grid)
+	app.SetRoot(mauview.NewBox(grid))
 	err := app.Start()
 	if err != nil {
 		panic(err)
