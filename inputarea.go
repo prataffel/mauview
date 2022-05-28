@@ -116,7 +116,7 @@ func NewInputArea() *InputArea {
 		selectionTextColor:       Styles.PrimaryTextColor,
 		selectionBackgroundColor: Styles.ContrastBackgroundColor,
 
-		vimBindings:   false,
+		vimBindings:   true,
 		copySelection: true,
 		focused:       false,
 
@@ -1016,10 +1016,6 @@ func (field *InputArea) OnKeyEvent(event KeyEvent) bool {
 	case tcell.KeyDelete:
 		field.RemoveNextCharacter()
 		doSnapshot = true
-	case tcell.KeyCtrlW:
-		field.RemovePreviousWord()
-		doSnapshot = true
-		forceNewSnapshot = true
 	case tcell.KeyBackspace:
 		if Backspace1RemovesWord {
 			field.RemovePreviousWord()
